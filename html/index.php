@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title> Assistant Credentials Management</title>
     <style>
-        /* CSS styles for the table */
 .container {
     max-width: 600px;
     margin: 50px auto;
@@ -129,13 +128,11 @@ foreach ($rows as $row) {
             continue;
         }
 
-        // Split each row into columns
         $columns = explode("|", $row);
         echo "<tr>";
         foreach ($columns as $column) {
             echo "<td>$column</td>";
         }
-        // Add delete button for each row
         echo "<td><button class='deleteBtn'>Delete</button></td>";
         echo "</tr>";
     }

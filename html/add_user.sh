@@ -9,7 +9,7 @@ echo "$username"
 echo "$apiKey"
 DB_PASSWORD="D0OG5cvldrMg"
 DB_SSL_MODE="require"
-ENDPOINT_ID="ep-sweet-moon-a4zutfgf" # Add the Endpoint ID here
+ENDPOINT_ID="ep-sweet-moon-a4zutfgf" 
 query="INSERT INTO users (username, api_key) VALUES ('$username', '$apiKey');"
 result=$(PGPASSWORD="$DB_PASSWORD" psql "postgresql://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME?sslmode=$DB_SSL_MODE&options=endpoint%3D$ENDPOINT_ID" -c "$query")
 if [ $? -eq 0 ]; then
