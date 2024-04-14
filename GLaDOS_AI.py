@@ -1,3 +1,5 @@
+#script without the personality
+
 import datetime
 from dotenv import load_dotenv
 import openai
@@ -105,6 +107,11 @@ def current_time():
     formatted_time = time_now.strftime("%m-%d-%Y %I:%M %p\n")
     print("The current date and time is:", formatted_time) 
 
+# Afisare timp curent
+def current_time():
+    time_now = datetime.datetime.now()
+    formatted_time = time_now.strftime("%m-%d-%Y %I:%M %p\n")
+    
 # Detectare de liniste 
 def detect_silence():
     cobra = pvcobra.create(access_key=pv_access_key)
