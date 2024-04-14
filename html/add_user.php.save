@@ -1,0 +1,42 @@
+<?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = $_POST["username"];
+    $apiKey = $_POST["apiKey"];
+
+    // PostgreSQL connection information
+    $DB_HOST = "ep-sweet-moon-a4zutfgf.us-east-1.aws.neon.tech";
+    $DB_PORT = "5432";
+    $DB_NAME = "BucharestHackathon2024";
+    $DB_USER = "admin";
+    $DB_PASSWORD = "D0OG5cvldrMg";
+    $DB_SSL_MODE = "require";
+    $ENDPOINT_ID = "ep-sweet-moon-a4zutfgf"; // Add the Endpoint ID here
+
+    // Escape special characters to prevent SQL injection
+
+    // SQL query to insert username and API key into 'users' table
+    $query = "INSERT INTO users (username, api_key) VALUES ('$escape', '$escapedApiKey');";
+
+    // Attempt to connect to the PostgreSQL database
+    $conn = pg_connect("host=$DB_HOST port=$DB_PORT dbname=$DB_NAME user=$DB_USER password=$DB_PASSWORD sslmode=$DB_SSL_MODE options=endpoint%3D$ENDPOINT_ID");
+    if (!$conn) {
+        echo "Failed to connect to the database.";
+        exit;
+    }
+
+    // Execute the query
+    $result = pg_query($conn, $query);
+    if ($result) {
+        echo "User added successfully.";
+    } else {
+        echo "Failed to add user.";
+    }
+
+    // Close the database connection
+    pg_close($conn);
+}
+
+?>
