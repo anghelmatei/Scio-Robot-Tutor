@@ -5,15 +5,15 @@ const DB_NAME = "BucharestHackathon2024";
 const DB_USER = "admin";
 const DB_PASSWORD = "D0OG5cvldrMg";
 const DB_SSL_MODE = "require";
-const ENDPOINT_ID = "ep-sweet-moon-a4zutfgf"; // Add the Endpoint ID here
+const ENDPOINT_ID = "ep-sweet-moon-a4zutfgf"; 
 
-// Get the username from POST data
-const username = req.body.username; // Assuming req is available and contains the POST data
+// Ia usernameul din Post data
+const username = req.body.username; 
 
-// Construct SQL query to delete user
+// Pregateste un querry ca sa stergi row coresp userului
 const query = `DELETE FROM users WHERE username = '${username}'`;
 
-// Establish database connection
+// Fa conexiunea la DB
 const { Client } = require('pg');
 
 const client = new Client({
@@ -30,7 +30,6 @@ const client = new Client({
 
 client.connect();
 
-// Execute query
 client.query(query, (err, res) => {
   if (err) {
     console.error('Error executing query', err.stack);
@@ -38,6 +37,5 @@ client.query(query, (err, res) => {
   }
   console.log(`Deleted entry with username '${username}' from the 'users' table`);
 });
-
-// Close database connection
+//inchide db connexion
 client.end();

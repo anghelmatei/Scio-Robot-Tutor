@@ -7,18 +7,18 @@ DB_NAME="BucharestHackathon2024"
 DB_USER="admin"
 DB_PASSWORD="D0OG5cvldrMg"
 DB_SSL_MODE="require"
-ENDPOINT_ID="ep-sweet-moon-a4zutfgf" # Add the Endpoint ID here
+ENDPOINT_ID="ep-sweet-moon-a4zutfgf"
 
-# Get the username from the command line argument
+# Preia din argumente
 username="$1"
 
-# SQL query to delete entry from 'users' table based on username
+# sterge conform usernamului
 QUERY="DELETE FROM users WHERE username = '$username';"
 
-# Attempt to connect to the PostgreSQL database and execute the query
+# Incearca conexiunea la PostgreSql si executa querry
 psql "postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=${DB_SSL_MODE}&options=endpoint%3D${ENDPOINT_ID}" -c "${QUERY}"
 
-# Check the exit code to determine if the query execution was successful
+# verifica codul de iesire si fa debug
 if [ $? -eq 0 ]; then
     echo "Deleted entry with username '$username' from the 'users' table"
 else

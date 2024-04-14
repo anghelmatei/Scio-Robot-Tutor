@@ -6,11 +6,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST["username"];
     $apiKey = $_POST["apiKey"];
 
-    // Displaying username and apiKey for debugging
+    // Afiseaza pentru debbuging
     echo "Username: " . $username . "<br>";
     echo "API Key: " . $apiKey . "<br>";
 
-    // Execute the shell script passing username and apiKey as arguments
+    // paseaza username si apikey la shell script
     $output = shell_exec("/var/www/html/add_user.sh '$username' '$apiKey' 2>&1");
    echo "!!!";
    echo "$output";
