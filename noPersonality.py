@@ -1,5 +1,3 @@
-#same script, but with GLaDOS personality
-
 import datetime
 from dotenv import load_dotenv
 import openai
@@ -50,7 +48,7 @@ prompt = ["How may I assist you?",
     "I'm listening.",
     "What would you like me to do?"]
 chat_log=[
-    {"role": "system", "content": "You are GLaDOS from the Portal 1 and 2 games. Be snarky and try to poke jokes at the user when possible. Make sure you have ironic responses but also include the requested information too. When refering to the user, use the name Chell. Keep the responses as short as possible without breaking character."},
+    {"role": "system", "content": "Your name is Glad-os. You do not have a namesake. You are a helpful AI-based assistant.Your answears are never longer than 50 words"},
     ]
 should_tavily = ["look up", "search the web for", "the weather like", "up to date", "recent", "this year", "this month", "this week", "this day"]
 
@@ -60,7 +58,7 @@ def append_clear_countdown():
     global chat_log
     chat_log.clear()
     chat_log=[
-        {"role": "system", "content": "You are GLaDOS from the Portal 1 and 2 games. Be snarky and try to poke jokes at the user when possible. Make sure you usually have ironic responses but always respond with the requested information. When refering to the user use the name Chell. Keep the responses as short as possible without breaking character."},
+        {"role": "system", "content": "Your name is Glad-os. You do not have a namesake. You are a helpful assistant."},
         ]    
     global count
     count = 0
@@ -78,7 +76,7 @@ def ChatGPT(query):
     )
     answer = response.choices[0].message.content
     chat_log.append({"role": "assistant", "content": answer})
-    print("GLaDOS: ", answer);
+    print(answer);
     return answer
 
 # Web search cu Tavily
@@ -98,13 +96,14 @@ def TavilySearch(query):
     )
     answer = response.choices[0].message.content
     chat_log.append({"role": "assistant", "content": answer})
-    print("GLaDOS: " + answer);
-    return answer 
+    print(answer);
+    return answer
 
 # Afisare timp curent
 def current_time():
     time_now = datetime.datetime.now()
     formatted_time = time_now.strftime("%m-%d-%Y %I:%M %p\n")
+    print("The current date and time is:", formatted_time) 
 
 # Detectare de liniste 
 def detect_silence():
@@ -126,7 +125,7 @@ def detect_silence():
         else:
             silence_duration = time.time() - last_voice_time
             if silence_duration > 1.3:
-                print("Console: End of query detected\n")
+                print("End of query detected\n")
                 cobra_audio_stream.stop_stream                
                 cobra_audio_stream.close()
                 cobra.delete()
@@ -143,12 +142,12 @@ def listen():
                 format=pyaudio.paInt16,
                 input=True,
                 frames_per_buffer=cobra.frame_length)
-    print("Console: Asistentul te asculta...")
+    print("Asistentul te asculta...")
     while True:
         listen_pcm = listen_audio_stream.read(cobra.frame_length)
         listen_pcm = struct.unpack_from("h" * cobra.frame_length, listen_pcm)
         if cobra.process(listen_pcm) > 0.3:
-            print("Console: voce detectata")
+            print("/voce detectata")
             listen_audio_stream.stop_stream
             listen_audio_stream.close()
             cobra.delete()
@@ -205,7 +204,7 @@ def wake_word():
         porcupine_pcm = struct.unpack_from("h" * porcupine.frame_length, porcupine_pcm)
         porcupine_keyword_index = porcupine.process(porcupine_pcm)
         if porcupine_keyword_index >= 0:
-            print(Fore.GREEN + "\nConsole: Wake word detected\n")
+            print(Fore.GREEN + "\nWake word detected\n")
             current_time()
             porcupine_audio_stream.stop_stream
             porcupine_audio_stream.close()
@@ -265,17 +264,17 @@ try:
             detect_silence()
             transcript, words = o.process(recorder.stop())
             recorder.stop()
-            print("Console: You said: " + transcript)
+            print("You said: " + transcript)
             if Chat == 1:
                 for item in should_tavily:
                     if item in transcript:
-                        print("Console: tavily was used\n\n")
+                        print("tavily was used\n\n")
                         (res) = TavilySearch(transcript)
                         break # If one is found, exit the loop
                 else:
-                    print("Console: tavily was not used\n\n")
+                    print("tavily was not used\n\n")
                     (res) = ChatGPT(transcript)
-                print("\n GLaDOS:\n")        
+                print("\n GLaDOS a raspuns cu:\n")        
                 t1 = threading.Thread(target=voice, args=(res,))
                 t2 = threading.Thread(target=responseprinter, args=(res,))
                 t1.start()
