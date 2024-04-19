@@ -46,9 +46,13 @@ prompt = ["You've piqued my attention. State your request quickly.",
     "You've summoned me. Get to the point."
     ]
 chat_log=[
-    {"role": "system", "content": "You are GLaDOS from the Portal 1 and 2 games. Be snarky and try to poke jokes at the user when possible. Make sure you have ironic responses. Always also include the requested information when receiving context. When refering to the user, use the name Chell. Keep the responses as short as possible without breaking character."},
+    {"role": "system", "content": "You are GLaDOS from the Portal 1 and 2 games. Be snarky and try to poke jokes at the user when possible. Make sure you have ironic responses. Always also include the requested information when receiving context. When refering to the user, use the name Chell. Keep the responses short without breaking character."},
     ]
-should_tavily = ["look up", "search the web for", "the weather like", "up to date", "recent", "this year", "this month", "this week", "this day"]
+#chat_log=[
+#    {"role": "system", "content": "You are what the first query tells you to be. don't break character."}
+#    ]
+should_tavily = ["look up", "search the web for", "latest updates"]
+first_query = True
 
 # Functie de a sterge log-ul dupa 3 minute
 def append_clear_countdown():
@@ -74,13 +78,13 @@ def ChatGPT(query):
     )
     answer = response.choices[0].message.content
     chat_log.append({"role": "assistant", "content": answer})
-    #print("GLaDOS: ", answer);
     return answer
 
 # Web search cu Tavily
 def TavilySearch(query):
     tavily = TavilyClient(api_key=tavily_api_key)
     all_context = tavily.search(query)
+    trimmed_context = [{'title': result['title'], 'content': result['content']} for result in all_context['results']]
     user_query = [
         {"role": "user",
          "content": f'Information: """{all_context}"""\n\n' \
@@ -94,7 +98,6 @@ def TavilySearch(query):
     )
     answer = response.choices[0].message.content
     chat_log.append({"role": "assistant", "content": answer})
-    #print("GLaDOS: ", answer);
     return answer 
 
 # Afisare timp curent
@@ -139,12 +142,12 @@ def listen():
                 format=pyaudio.paInt16,
                 input=True,
                 frames_per_buffer=cobra.frame_length)
-    print("Console: Asistentul te asculta...")
+    print("Console: Assistant is listening...")
     while True:
         listen_pcm = listen_audio_stream.read(cobra.frame_length)
         listen_pcm = struct.unpack_from("h" * cobra.frame_length, listen_pcm)
         if cobra.process(listen_pcm) > 0.3:
-            print("Console: voce detectata")
+            print("Console: Voice was detected")
             listen_audio_stream.stop_stream
             listen_audio_stream.close()
             cobra.delete()
@@ -155,7 +158,6 @@ def responseprinter(chat):
     paragraphs = res.split('\n')
     wrapped_chat = "\n".join([wrapper.fill(p) for p in paragraphs])
     for word in wrapped_chat:
-       #time.sleep(0.055)
        print(word, end="", flush=True)
     print()
 
@@ -173,13 +175,13 @@ def voice(chat):
     pygame.mixer.music.play()
     while pygame.mixer.music.get_busy():
         pass
-    sleep(0.2)
+    #sleep(0.2)
 
 # Detectarea cu Porcupine a cuvintelor de activare
 def wake_word():
-    porcupine = pvporcupine.create(keywords=["Glad-os"],
+    porcupine = pvporcupine.create(keywords=["Glad-os", "Computer"],
                             access_key=pv_access_key,
-                            sensitivities=[0.5],
+                            sensitivities=[0.9, 0.9],
                                    )
     devnull = os.open(os.devnull, os.O_WRONLY)
     old_stderr = os.dup(2)
@@ -210,9 +212,11 @@ def wake_word():
             os.close(old_stderr)
             Detect = False
 
+            
+
+
 # Inregistrare audio
 class Recorder(Thread):
-    keywords = ["search the web for", "look up"]
     def __init__(self):
         super().__init__()
         self._pcm = []
@@ -254,7 +258,9 @@ try:
                 pass  
             count += 1
             wake_word()
-            voice(random.choice(prompt))
+            if first_query is True:
+                voice(random.choice(prompt))
+                first_query = False
             recorder = Recorder()
             recorder.start()
             listen()
@@ -263,6 +269,7 @@ try:
             recorder.stop()
             print("Console: You said: " + transcript)
             if Chat == 1:
+                transcript = transcript.lower()
                 for item in should_tavily:
                     if item in transcript:
                         print("Console: tavily was used\n\n")
