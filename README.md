@@ -18,7 +18,7 @@ The 'html' folder is not needed, it was just a requirement from one of the spons
 ![Photo www themoment ro 1-1343](https://github.com/anghelmatei/BucharestHackathon-GLaDOS/assets/139790358/9767e89c-3643-42ba-89c2-1828a5068594)
 ![Photo www themoment ro 1-1374](https://github.com/anghelmatei/BucharestHackathon-GLaDOS/assets/139790358/308c5c21-cc17-41a3-94da-c601b737c356)
 
-#The judges' reaction when it worked:
+The reaction we got from the judges when it worked
 ![Photo www themoment ro 1-1357](https://github.com/anghelmatei/BucharestHackathon-GLaDOS/assets/139790358/67244121-0d08-4f8f-9b74-dbe86e0e8d93)
 
 
