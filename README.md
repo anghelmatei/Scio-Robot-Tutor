@@ -13,7 +13,7 @@ The 'html' folder is not needed, it was just a requirement from one of the spons
 - Is just fun to use (lots of people asked to try it, both at the hackathon and PoliFest)
 ## Demo
 
-[demo GLaDOS](https://youtu.be/fq5gw-32NBQ)
+[![Watch the video](https://img.youtube.com/vi/<fq5gw-32NBQ>/hqdefault.jpg)](https://www.youtube.com/embed/<fq5gw-32NBQ>)
 ## Authors
 
 - [@anghelmatei](https://github.com/anghelmatei)
