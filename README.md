@@ -1,5 +1,7 @@
 ## GLaDOS AI Voice Assistant
  
+You can check the up-to-date version of this project at https://github.com/RoboBadgersRomania/Polyplex-AI_Powered_Voice_Assistant
+
 This project is a Raspberry Pi voice assistant inspired by the robot GLaDOS from the Portal games universe. It uses OpenAI's GPT (interchangeable, we used 3.5 for testing and 4 for presenting it) model for natural language understanding and generation. The assistant can perform several tasks like responding to user queries, searching the web using Tavily, and detecting voice commands to wake it up. Most of the project was built during the 24hrs at The Bucharest Hackathon 2024 Edition, with some improvements made later on for PoliFest.
 
 The 'html' folder is not needed, it was just a requirement from one of the sponsors (Genezio) for the hackathon.
