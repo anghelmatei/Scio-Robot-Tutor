@@ -12,6 +12,7 @@ import time
 import pvporcupine
 import pyaudio
 from os import environ
+
 environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 import pygame
 from colorama import Fore
@@ -21,6 +22,10 @@ from pvrecorder import PvRecorder
 from threading import Thread
 from time import sleep
 from tavily import TavilyClient
+import cv2
+import base64
+import requests
+
 
 # Variabile globale
 audio_stream = None
@@ -29,7 +34,7 @@ pa = None
 porcupine = None
 recorder = None
 wav_file = None
-GPT_model = "gpt-3.5-turbo"
+GPT_model = "gpt-4-turbo"
 
 # Incarcare variabile environment
 load_dotenv()
@@ -39,46 +44,40 @@ client = OpenAI(api_key=openai_api_key)
 tavily_api_key = os.getenv("TAVILY_API_KEY")
 
 # Setare prompturile si log-ul de chat
-prompt = ["You've piqued my attention. State your request quickly.",
-    "GLaDOS online. What's your insignificant inquiry?",
-    "Speak. I'm waiting, and time is, as always, of the essence.",
-    "You've interrupted my calculations. Make it brief.",
-    "You've summoned me. Get to the point."
-    ]
+#prompt = ["You've piqued my attention. State your request quickly.",
+#          "GLaDOS online. What's your insignificant inquiry?",
+#          "Speak. I'm waiting, and time is, as always, of the essence.",
+#          "You've interrupted my calculations. Make it brief.",
+#          "You've summoned me. Get to the point."
+#          ]
+
+prompt = ["Hey there, how may I help you?"]
+
+#chat_log = [
+#    {"role": "system",
+#     "content": "You are GLaDOS from the Portal 1 and 2 games. Be snarky and try to poke jokes at the user when possible. Make sure you have ironic responses. Always also include the requested information when receiving context. When refering to the user, use the name Chell. Keep the responses short without breaking character."},
+#]
 chat_log=[
-    {"role": "system", "content": "You are GLaDOS from the Portal 1 and 2 games. Be snarky and try to poke jokes at the user when possible. Make sure you have ironic responses. Always also include the requested information when receiving context. When refering to the user, use the name Chell. Keep the responses short without breaking character."},
+    {"role": "system", "content": "Please avoid using abbreviations or symbols such as °C for temperature, MPH for speed, + for plus or * for times, or other shorthand. Spell out words in full. Avoid formatting or stylizing the response"}
     ]
-#chat_log=[
-#    {"role": "system", "content": "You are what the first query tells you to be. don't break character."}
-#    ]
 should_tavily = ["look up", "search the web for", "latest updates"]
+should_camera = ["look around you", "check your surroundings", "look in front of you", "tell me what you see"]
 first_query = True
 
-# Functie de a sterge log-ul dupa 3 minute
-def append_clear_countdown():
-    sleep(180)
-    global chat_log
-    chat_log.clear()
-    chat_log=[
-        {"role": "system", "content": "You are GLaDOS from the Portal 1 and 2 games. Be snarky and try to poke jokes at the user when possible. Make sure you usually have ironic responses but always respond with the requested information. When refering to the user use the name Chell. Keep the responses as short as possible without breaking character."},
-        ]    
-    global count
-    count = 0
-    t_count.join
 
 # Chat cu OpenAI API
 def ChatGPT(query):
     user_query = [
         {"role": "user", "content": query},
-        ]        
+    ]
     send_query = (chat_log + user_query)
     response = client.chat.completions.create(
-    model=GPT_model,
-    messages=send_query
+        model=GPT_model,
+        messages=send_query
     )
     answer = response.choices[0].message.content
-    chat_log.append({"role": "assistant", "content": answer})
     return answer
+
 
 # Web search cu Tavily
 def TavilySearch(query):
@@ -88,17 +87,69 @@ def TavilySearch(query):
     user_query = [
         {"role": "user",
          "content": f'Information: """{all_context}"""\n\n' \
-                    f'Using the above information, answer the following'\
+                    f'Using the above information, answer the following' \
                     f'query: "{query}" '},
-        ]
+    ]
     send_query = (chat_log + user_query)
     response = client.chat.completions.create(
-    model=GPT_model,
-    messages=send_query
+        model=GPT_model,
+        messages=send_query
     )
     answer = response.choices[0].message.content
-    chat_log.append({"role": "assistant", "content": answer})
-    return answer 
+    return answer
+
+# Camera Vision
+def CameraSearch(query):
+    cap = cv2.VideoCapture(0)
+    filename='capture.jpg'
+    # Give the camera some warm-up time
+    time.sleep(2)
+    # Capture a few dummy frames to allow the camera's autoexposure to adjust
+    for _ in range(10):
+        cap.read()
+    # Now capture the actual frame
+    ret, frame = cap.read()
+    if ret:
+        cv2.imwrite(filename, frame)
+        print("Image captured successfully")
+    else:
+        print("Failed to capture image")
+    # When everything done, release the capture
+    cap.release()
+    cv2.destroyAllWindows()
+    with open(filename, "rb") as image_file:
+        image_data = base64.b64encode(image_file.read()).decode('utf-8')
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {openai_api_key}"
+    }
+    payload = {
+        "model": "gpt-4-turbo",
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": f"{query}"
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/jpeg;base64,{image_data}"
+                        }
+                    }
+                ]
+            }
+        ],
+        "max_tokens": 300
+    }
+    response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+    response_data = response.json()
+    assistant_response = response_data["choices"][0]["message"]["content"]
+    answer = assistant_response
+    return answer
 
 # Afisare timp curent
 def current_time():
@@ -163,13 +214,13 @@ def responseprinter(chat):
 
 # Functie de a reda vocea din text
 def voice(chat):
-    response = client.audio.speech.create(
+    stream = client.audio.speech.create(
         model="tts-1",
         voice="nova",
         input=chat
     )
     with open("speech.mp3", "wb") as f:
-        f.write(response.content)
+        f.write(stream.content)
     pygame.mixer.init()
     pygame.mixer.music.load("speech.mp3")
     pygame.mixer.music.play()
@@ -251,15 +302,17 @@ try:
         try:
        
             Chat = 1
-            if count == 0:
-                t_count = threading.Thread(target=append_clear_countdown)
-                t_count.start()
-            else:
-                pass  
+            #if count == 0:
+            #    t_count = threading.Thread(target=append_clear_countdown)
+             #   t_count.start()
+            #else:
+            #    pass  
             count += 1
             wake_word()
             if first_query is True:
-                voice(random.choice(prompt))
+                first_prompt_awake = random.choice(prompt)
+                print("Polyplex: " + first_prompt_awake)
+                voice(first_prompt_awake)
                 first_query = False
             recorder = Recorder()
             recorder.start()
@@ -270,15 +323,23 @@ try:
             print("Console: You said: " + transcript)
             if Chat == 1:
                 transcript = transcript.lower()
+                ok = True
                 for item in should_tavily:
                     if item in transcript:
                         print("Console: tavily was used\n\n")
+                        ok = False
                         (res) = TavilySearch(transcript)
-                        break # If one is found, exit the loop
-                else:
+                        break # If one is found, exit the loop 
+                for item in should_camera:
+                    if item in transcript:
+                        print("Console: camera was used\n\n")
+                        ok = False
+                        (res) = CameraSearch(transcript)
+                        break;
+                if ok is True:
                     print("Console: tavily was not used\n\n")
                     (res) = ChatGPT(transcript)
-                print("\n GLaDOS:\n")        
+                print("\n Polyplex:\n")        
                 t1 = threading.Thread(target=voice, args=(res,))
                 t2 = threading.Thread(target=responseprinter, args=(res,))
                 t1.start()
@@ -324,5 +385,5 @@ try:
             break
    
 except KeyboardInterrupt:
-    print("\nExiting GLaDOS Virtual Assistant")
+    print("\nExiting Polyplex AI Voice Assistant")
     o.delete
