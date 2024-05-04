@@ -15,7 +15,7 @@ The 'html' folder is not needed, it was just a requirement from one of the spons
 - Is just fun to use (lots of people asked to try it, both at the hackathon and PoliFest)
 ## Demo
 
-[![Watch the video](https://img.youtube.com/vi/fq5gw-32NBQ/hqdefault.jpg)](https://www.youtube.com/embed/fq5gw-32NBQ)
+[![Watch the video](https://img.youtube.com/vi/hfDtnavh2PQ/hqdefault.jpg)](https://www.youtube.com/embed/hfDtnavh2PQ)
 ## My friend and I presenting a live demo on stage
 ![Photo www themoment ro 1-1343](https://github.com/anghelmatei/BucharestHackathon-GLaDOS/assets/139790358/9767e89c-3643-42ba-89c2-1828a5068594)
 ![Photo www themoment ro 1-1374](https://github.com/anghelmatei/BucharestHackathon-GLaDOS/assets/139790358/308c5c21-cc17-41a3-94da-c601b737c356)
